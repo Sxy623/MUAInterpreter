@@ -1,6 +1,16 @@
+package src.mua;
+
 public class Utility {
 	
 	public static double eps = 1e-5;
+	
+	public static int count(String str, char c) {
+		int count = 0;
+		for (int i = 0; i < str.length(); i++)
+			if (str.charAt(i) == c)
+				count++;
+		return count;
+	}
 	
 	// 算术运算
 	// 返回值: Number 类型的 Variable

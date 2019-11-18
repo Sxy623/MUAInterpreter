@@ -1,3 +1,7 @@
+package src.mua;
+
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 enum Type { NUMBER, WORD, BOOLEAN, LIST }
@@ -16,9 +20,12 @@ public class Main {
 
 	public static Scanner scan = new Scanner(System.in);
 	
-	public static void main(String[] args) {
+	// 全局变量空间
+	public static Map<String, Variable> map = new HashMap<String, Variable>();
+	
+	public static void main(String[] args) {		
 		while (scan.hasNext()) {
-			Interpreter.interpret(scan);
+			Interpreter.interpret(scan, map);
 		}
 	}
 }

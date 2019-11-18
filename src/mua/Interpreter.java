@@ -1,11 +1,10 @@
+package src.mua;
+
 import java.util.Scanner;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Interpreter {
-	
-	// 全局变量空间
-	public static Map<String, Variable> map = new HashMap<String, Variable>();
 	
 	// 判断是否为 Word 字面量
 	public static boolean isWordLiteral(String str) {
@@ -40,16 +39,20 @@ public class Interpreter {
 	}
 	// 读到 List 字面量结束，返回 List 变量的 content
 	public static String getList(String str, Scanner scan) {
-		if (str.contains("]")) {
+		int depth = Utility.count(str, '[') - Utility.count(str, ']');
+		
+		if (depth == 0) {
 			int index = str.lastIndexOf("]");
 			return str.substring(1, index);
 		}
 		
 		String tempStr = str.substring(1);
 		String p = scan.next();
-		while(!p.contains("]")) {
+		depth += Utility.count(p, '[') - Utility.count(p, ']');
+		while (depth != 0) {
 			tempStr += " " + p;
 			p = scan.next();
+			depth += Utility.count(p, '[') - Utility.count(p, ']');
 		}
 		int index = p.lastIndexOf("]");
 		tempStr += " " + p.substring(0, index);
@@ -61,16 +64,17 @@ public class Interpreter {
 		return str.charAt(0) == ':';
 	}
 	// 对冒号进行递归解析，取出对应变量
-	public static Variable parseColon(String str) {
+	public static Variable parseColon(String str, Map<String, Variable> map) {
 		String id = str.substring(1);
 		if (hasColon(id)) {
-			Variable variable = parseColon(id);
+			Variable variable = parseColon(id, map);
 			id = variable.content;
 		}
 		return map.get(id);
 	}
 	
-	public static Variable nextParameter(Scanner scan) {
+	public static Variable nextParameter(Scanner scan, Map<String, Variable> map) {
+		Scanner tempScanner;
 		String p = scan.next();
 		// 解析 Word 字面量
 		if (isWordLiteral(p)) {
@@ -90,21 +94,21 @@ public class Interpreter {
 		}
 		// 解析冒号
 		else if (hasColon(p)) {
-			return parseColon(p);
+			return parseColon(p, map);
 		}
 		
 		Variable p1, p2;
 		
 		switch(p) {
 		case "thing":
-			p1 = nextParameter(scan);
+			p1 = nextParameter(scan, map);
 			Variable variable = map.get(p1.content);
 			return variable;
 		case "read":
 			p = scan.next();
 			return new Variable(p, Type.WORD);
 		case "isname":
-			p1 = nextParameter(scan);
+			p1 = nextParameter(scan, map);
 			if (map.get(p1.content) == null) {
 				return new Variable("false", Type.BOOLEAN);
 			}
@@ -113,45 +117,45 @@ public class Interpreter {
 			}
 		// 算术运算
 		case "add":
-			p1 = nextParameter(scan);
-			p2 = nextParameter(scan);
+			p1 = nextParameter(scan, map);
+			p2 = nextParameter(scan, map);
 			return Utility.addOp(p1, p2);
 		case "sub":
-			p1 = nextParameter(scan);
-			p2 = nextParameter(scan);
+			p1 = nextParameter(scan, map);
+			p2 = nextParameter(scan, map);
 			return Utility.subOp(p1, p2);
 		case "mul":
-			p1 = nextParameter(scan);
-			p2 = nextParameter(scan);
+			p1 = nextParameter(scan, map);
+			p2 = nextParameter(scan, map);
 			return Utility.mulOp(p1, p2);
 		case "div":
-			p1 = nextParameter(scan);
-			p2 = nextParameter(scan);
+			p1 = nextParameter(scan, map);
+			p2 = nextParameter(scan, map);
 			return Utility.divOp(p1, p2);
 		// 比较运算
 		case "eq":
-			p1 = nextParameter(scan);
-			p2 = nextParameter(scan);
+			p1 = nextParameter(scan, map);
+			p2 = nextParameter(scan, map);
 			return Utility.eqOp(p1, p2);
 		case "gt":
-			p1 = nextParameter(scan);
-			p2 = nextParameter(scan);
+			p1 = nextParameter(scan, map);
+			p2 = nextParameter(scan, map);
 			return Utility.gtOp(p1, p2);
 		case "lt":
-			p1 = nextParameter(scan);
-			p2 = nextParameter(scan);
+			p1 = nextParameter(scan, map);
+			p2 = nextParameter(scan, map);
 			return Utility.ltOp(p1, p2);
 		// 逻辑运算
 		case "and":
-			p1 = nextParameter(scan);
-			p2 = nextParameter(scan);
+			p1 = nextParameter(scan, map);
+			p2 = nextParameter(scan, map);
 			return Utility.andOp(p1, p2);
 		case "or":
-			p1 = nextParameter(scan);
-			p2 = nextParameter(scan);
+			p1 = nextParameter(scan, map);
+			p2 = nextParameter(scan, map);
 			return Utility.orOp(p1, p2);
 		case "not":
-			p1 = nextParameter(scan);
+			p1 = nextParameter(scan, map);
 			return Utility.notOp(p1);
 		case "readlist":
 			p = scan.nextLine();  // 行末回车
@@ -159,66 +163,108 @@ public class Interpreter {
 			return new Variable(p, Type.LIST);
 		// 判断类型
 		case "isnumber":
-			p1 = nextParameter(scan);
+			p1 = nextParameter(scan, map);
 			return Utility.isNumber(p1);
 		case "isword":
-			p1 = nextParameter(scan);
+			p1 = nextParameter(scan, map);
 			return Utility.isWord(p1);
 		case "islist":
-			p1 = nextParameter(scan);
+			p1 = nextParameter(scan, map);
 			return Utility.isList(p1);
 		case "isbool":
-			p1 = nextParameter(scan);
+			p1 = nextParameter(scan, map);
 			return Utility.isBool(p1);
 		case "isempty":
-			p1 = nextParameter(scan);
+			p1 = nextParameter(scan, map);
 			return Utility.isEmpty(p1);
 		// 数值计算
 		case "random":
-			p1 = nextParameter(scan);
+			p1 = nextParameter(scan, map);
 			return Utility.random(p1);
 		case "sqrt":
-			p1 = nextParameter(scan);
+			p1 = nextParameter(scan, map);
 			return Utility.sqrt(p1);
 		case "int":
-			p1 = nextParameter(scan);
+			p1 = nextParameter(scan, map);
 			return Utility.intOp(p1);
+		// 函数调用
+		default:
+			String f = map.get(p).content;
+			tempScanner = new Scanner(f);
+			p1 = nextParameter(tempScanner, map);
+			p2 = nextParameter(tempScanner, map);
+			String noLeadingBlank = p1.content.replaceAll("^ +", "");
+			String[] parameters = noLeadingBlank.split(" ");
+			int paraNum = parameters.length;
+			// 局部变量空间
+			Map<String, Variable> localMap = new HashMap<String, Variable>();
+			Variable x;
+			// 参数绑定
+			for (int i = 0; i < paraNum; i++) {
+				x = nextParameter(scan, map);
+				localMap.put(parameters[i], x);
+			}
+			tempScanner = new Scanner(p2.content);
+			interpret(tempScanner, localMap);
+			return localMap.get("__output");
 		}
-		return null;
 	}
 	
-	public static void interpret(Scanner scan) {
+	public static void interpret(Scanner scan, Map<String, Variable> map) {
 		Scanner tempScanner;
 		while (scan.hasNext()) {
 			String instruction = scan.next();
 			Variable p1, p2;
 			switch(instruction) {
 			case "make":
-				p1 = nextParameter(scan);
-				p2 = nextParameter(scan);
+				p1 = nextParameter(scan, map);
+				p2 = nextParameter(scan, map);
 				map.put(p1.content, p2);
 				break;
 			case "print":
-				p1 = nextParameter(scan);
+				p1 = nextParameter(scan, map);
 				System.out.println(p1.content);
 				break;
 			case "erase":
-				p1 = nextParameter(scan);
+				p1 = nextParameter(scan, map);
 				map.remove(p1.content);
 				break;
 			case "run":
-				p1 = nextParameter(scan);
+				p1 = nextParameter(scan, map);
 				tempScanner = new Scanner(p1.content);
-				interpret(tempScanner);
+				interpret(tempScanner, map);
 				break;
 			case "repeat":
-				p1 = nextParameter(scan);
-				p2 = nextParameter(scan);
+				p1 = nextParameter(scan, map);
+				p2 = nextParameter(scan, map);
 				double num = Double.valueOf(p2.content);
 				for (int i = 0; i < num - Utility.eps; i++) {
 					tempScanner = new Scanner(p1.content);
-					interpret(tempScanner);
+					interpret(tempScanner, map);
 				}
+				break;
+			case "output":
+				p1 = nextParameter(scan, map);
+				map.put("__output", p1);
+				break;
+			default: // 调用函数
+				String f = map.get(instruction).content;
+				tempScanner = new Scanner(f);
+				p1 = nextParameter(tempScanner, map);
+				p2 = nextParameter(tempScanner, map);
+				String noLeadingBlank = p1.content.replaceAll("^ +", "");
+				String[] parameters = noLeadingBlank.split(" ");
+				int paraNum = parameters.length;
+				// 局部变量空间
+				Map<String, Variable> localMap = new HashMap<String, Variable>();
+				Variable x;
+				// 参数绑定
+				for (int i = 0; i < paraNum; i++) {
+					x = nextParameter(scan, map);
+					localMap.put(parameters[i], x);
+				}
+				tempScanner = new Scanner(p2.content);
+				interpret(tempScanner, localMap);
 				break;
 			}
 		}
