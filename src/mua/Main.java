@@ -23,7 +23,7 @@ public class Main {
 	// 全局变量空间
 	public static Map<String, Variable> map = new HashMap<String, Variable>();
 	
-	public static void main(String[] args) {		
+	public static void main(String[] args) {
 		while (scan.hasNext()) {
 			Interpreter.interpret(scan, map);
 		}

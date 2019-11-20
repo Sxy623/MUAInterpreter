@@ -73,6 +73,32 @@ public class Interpreter {
 		return map.get(id);
 	}
 	
+	// 判断是否为表达式
+	public static boolean isExpression(String str) {
+		return str.charAt(0) == '(';
+	}
+	// 读到表达式结束，返回整个 String
+	public static String getExpression(String str, Scanner scan) {
+		int depth = Utility.count(str, '(') - Utility.count(str, ')');
+		
+		if (depth == 0) {
+			int index = str.lastIndexOf(")");
+			return str.substring(1, index);
+		}
+		
+		String tempStr = str.substring(1);
+		String p = scan.next();
+		depth += Utility.count(p, '(') - Utility.count(p, ')');
+		while (depth != 0) {
+			tempStr += p;
+			p = scan.next();
+			depth += Utility.count(p, '(') - Utility.count(p, ')');
+		}
+		int index = p.lastIndexOf(")");
+		tempStr += p.substring(0, index);
+		return tempStr;
+	}
+	
 	public static Variable nextParameter(Scanner scan, Map<String, Variable> map) {
 		Scanner tempScanner;
 		String p = scan.next();
@@ -95,6 +121,10 @@ public class Interpreter {
 		// 解析冒号
 		else if (hasColon(p)) {
 			return parseColon(p, map);
+		}
+		// 解析表达式
+		else if (isExpression(p)) {
+			return new Variable(String.valueOf(Calculator.calcExpression(getExpression(p, scan))), Type.NUMBER);
 		}
 		
 		Variable p1, p2;
