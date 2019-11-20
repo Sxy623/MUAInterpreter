@@ -13,8 +13,6 @@ public class Calculator {
 		case '/':
 		case '%':
 			return 2;
-		case '(':
-			return 0;
 		default:
 			break;
 		}
@@ -48,7 +46,7 @@ public class Calculator {
 		boolean flag = false;
 		for (int i = 0; i < s.length(); i++) {
 			char ch = s.charAt(i);
-			// 跳过空白位
+			// 空白位
 			if (Character.isWhitespace(ch)) {
 				continue;
 			}
@@ -76,7 +74,7 @@ public class Calculator {
 						op = ops[--opsTop];
 					}
 				}
-				// 符号栈为空
+				// 符号栈为空，直接压栈
 				else if (opsTop == 0) {
 					ops[opsTop++] = ch;
 				}

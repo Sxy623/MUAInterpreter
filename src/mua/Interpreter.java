@@ -277,6 +277,14 @@ public class Interpreter {
 				p1 = nextParameter(scan, map);
 				map.put("__output", p1);
 				break;
+			case "stop":
+				scan.nextLine();
+				break;
+			case "export":
+				for (Map.Entry<String, Variable> entry : map.entrySet()) {
+					Main.map.put(entry.getKey(), entry.getValue());
+				}
+				break;
 			default: // 调用函数
 				String f = map.get(instruction).content;
 				tempScanner = new Scanner(f);
