@@ -70,7 +70,9 @@ public class Interpreter {
 			Variable variable = parseColon(id, map);
 			id = variable.content;
 		}
-		return map.get(id);
+		Variable v = map.get(id);
+		if (v != null) return v;  // 返回局部变量
+		return Main.map.get(id);  // 返回全局变量
 	}
 	
 	// 判断是否为表达式
@@ -219,20 +221,25 @@ public class Interpreter {
 			return Utility.intOp(p1);
 		// 函数调用
 		default:
-			String f = map.get(p).content;
+			String f = Main.map.get(p).content;
 			tempScanner = new Scanner(f);
+			// 局部变量空间
+			Map<String, Variable> localMap = new HashMap<String, Variable>();
 			p1 = nextParameter(tempScanner, map);
 			p2 = nextParameter(tempScanner, map);
 			String noLeadingBlank = p1.content.replaceAll("^ +", "");
-			String[] parameters = noLeadingBlank.split(" ");
-			int paraNum = parameters.length;
-			// 局部变量空间
-			Map<String, Variable> localMap = new HashMap<String, Variable>();
-			Variable x;
-			// 参数绑定
-			for (int i = 0; i < paraNum; i++) {
-				x = nextParameter(scan, map);
-				localMap.put(parameters[i], x);
+			int paraNum;
+			if (noLeadingBlank.isEmpty())
+				paraNum = 1;
+			else {
+				String[] parameters = noLeadingBlank.split(" ");
+				paraNum = parameters.length;
+				Variable x;
+				// 参数绑定
+				for (int i = 0; i < paraNum; i++) {
+					x = nextParameter(scan, map);
+					localMap.put(parameters[i], x);
+				}
 			}
 			tempScanner = new Scanner(p2.content);
 			interpret(tempScanner, localMap);
@@ -244,7 +251,7 @@ public class Interpreter {
 		Scanner tempScanner;
 		while (scan.hasNext()) {
 			String instruction = scan.next();
-			Variable p1, p2;
+			Variable p1, p2, p3;
 			switch(instruction) {
 			case "make":
 				p1 = nextParameter(scan, map);
@@ -267,9 +274,9 @@ public class Interpreter {
 			case "repeat":
 				p1 = nextParameter(scan, map);
 				p2 = nextParameter(scan, map);
-				double num = Double.valueOf(p2.content);
+				double num = Double.valueOf(p1.content);
 				for (int i = 0; i < num - Utility.eps; i++) {
-					tempScanner = new Scanner(p1.content);
+					tempScanner = new Scanner(p2.content);
 					interpret(tempScanner, map);
 				}
 				break;
@@ -278,28 +285,49 @@ public class Interpreter {
 				map.put("__output", p1);
 				break;
 			case "stop":
-				scan.nextLine();
+				while (scan.hasNext())
+					scan.nextLine();
 				break;
 			case "export":
-				for (Map.Entry<String, Variable> entry : map.entrySet()) {
-					Main.map.put(entry.getKey(), entry.getValue());
+				p1 = nextParameter(scan, map);
+				Variable v = map.get(p1.content);
+				Main.map.put(p1.content, v);
+				break;
+			case "if":
+				p1 = nextParameter(scan, map);
+				p2 = nextParameter(scan, map);
+				p3 = nextParameter(scan, map);
+				if (p1.type == Type.BOOLEAN) {
+					if (p1.content.equals("true")) {
+						tempScanner = new Scanner(p2.content);
+						interpret(tempScanner, map);
+					}
+					else {
+						tempScanner = new Scanner(p3.content);
+						interpret(tempScanner, map);
+					}
 				}
 				break;
 			default: // 调用函数
-				String f = map.get(instruction).content;
+				String f = Main.map.get(instruction).content;
 				tempScanner = new Scanner(f);
+				// 局部变量空间
+				Map<String, Variable> localMap = new HashMap<String, Variable>();
 				p1 = nextParameter(tempScanner, map);
 				p2 = nextParameter(tempScanner, map);
 				String noLeadingBlank = p1.content.replaceAll("^ +", "");
-				String[] parameters = noLeadingBlank.split(" ");
-				int paraNum = parameters.length;
-				// 局部变量空间
-				Map<String, Variable> localMap = new HashMap<String, Variable>();
-				Variable x;
-				// 参数绑定
-				for (int i = 0; i < paraNum; i++) {
-					x = nextParameter(scan, map);
-					localMap.put(parameters[i], x);
+				int paraNum;
+				if (noLeadingBlank.isEmpty())
+					paraNum = 1;
+				else {
+					String[] parameters = noLeadingBlank.split(" ");
+					paraNum = parameters.length;
+					Variable x;
+					// 参数绑定
+					for (int i = 0; i < paraNum; i++) {
+						x = nextParameter(scan, map);
+						localMap.put(parameters[i], x);
+					}
 				}
 				tempScanner = new Scanner(p2.content);
 				interpret(tempScanner, localMap);
