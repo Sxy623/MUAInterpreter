@@ -25,7 +25,12 @@ public class Main {
 	
 	public static void main(String[] args) {
 		while (scan.hasNext()) {
-			Interpreter.interpret(scan, map);
+			try {
+				Interpreter.interpret(scan, map);
+			}
+			catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 }

@@ -1,6 +1,9 @@
 package src.mua;
 
 import java.util.Scanner;
+
+import javax.management.RuntimeErrorException;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -164,6 +167,10 @@ public class Interpreter {
 			p1 = nextParameter(scan, map);
 			p2 = nextParameter(scan, map);
 			return Utility.divOp(p1, p2);
+		case "mod":
+			p1 = nextParameter(scan, map);
+			p2 = nextParameter(scan, map);
+			return Utility.modOp(p1, p2);
 		// 比较运算
 		case "eq":
 			p1 = nextParameter(scan, map);
@@ -221,8 +228,16 @@ public class Interpreter {
 			return Utility.intOp(p1);
 		// 函数调用
 		default:
-			String f = Main.map.get(p).content;
-			tempScanner = new Scanner(f);
+			Variable f = map.get(p);
+			String str;
+			try {
+				if (f != null) str = f.content;
+				else str = Main.map.get(p).content;
+			}
+			catch (Exception e) {
+				throw new RuntimeException(p);
+			}
+			tempScanner = new Scanner(str);
 			// 局部变量空间
 			Map<String, Variable> localMap = new HashMap<String, Variable>();
 			p1 = nextParameter(tempScanner, map);
@@ -309,8 +324,11 @@ public class Interpreter {
 				}
 				break;
 			default: // 调用函数
-				String f = Main.map.get(instruction).content;
-				tempScanner = new Scanner(f);
+				Variable f = map.get(instruction);
+				String str;
+				if (f != null) str = f.content;
+				else str = Main.map.get(instruction).content;
+				tempScanner = new Scanner(str);
 				// 局部变量空间
 				Map<String, Variable> localMap = new HashMap<String, Variable>();
 				p1 = nextParameter(tempScanner, map);

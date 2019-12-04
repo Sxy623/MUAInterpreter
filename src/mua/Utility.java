@@ -30,6 +30,12 @@ public class Utility {
 		Double result = Double.valueOf(a.content) / Double.valueOf(b.content);
 		return new Variable(result.toString(), Type.NUMBER);
 	}
+	public static Variable modOp(Variable a, Variable b) {
+		long num1 = Math.round(Double.valueOf(a.content));
+		long num2 = Math.round(Double.valueOf(b.content));
+		Double result = Double.valueOf(num1 % num2);
+		return new Variable(result.toString(), Type.NUMBER);
+	}
 	
 	// 比较运算
 	// 返回值: Boolean 类型的 Variable
