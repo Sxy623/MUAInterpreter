@@ -1,9 +1,6 @@
 package src.mua;
 
 import java.util.Scanner;
-
-import javax.management.RuntimeErrorException;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -59,6 +56,7 @@ public class Interpreter {
 		}
 		int index = p.lastIndexOf("]");
 		tempStr += " " + p.substring(0, index);
+		tempStr = tempStr.replaceAll("^ +", "").replaceAll(" +$", "");
 		return tempStr;
 	}
 	
@@ -216,6 +214,35 @@ public class Interpreter {
 		case "isempty":
 			p1 = nextParameter(scan, map);
 			return Utility.isEmpty(p1);
+		// 字表处理
+		case "word":
+			p1 = nextParameter(scan, map);
+			p2 = nextParameter(scan, map);
+			return Utility.wordOp(p1, p2);
+		case "sentence":
+			p1 = nextParameter(scan, map);
+			p2 = nextParameter(scan, map);
+			return Utility.sentenceOp(p1, p2);
+		case "list":
+			p1 = nextParameter(scan, map);
+			p2 = nextParameter(scan, map);
+			return Utility.listOp(p1, p2);
+		case "join":
+			p1 = nextParameter(scan, map);
+			p2 = nextParameter(scan, map);
+			return Utility.joinOp(p1, p2);
+		case "first":
+			p1 = nextParameter(scan, map);
+			return Utility.firstOp(p1);
+		case "last":
+			p1 = nextParameter(scan, map);
+			return Utility.lastOp(p1);
+		case "butfirst":
+			p1 = nextParameter(scan, map);
+			return Utility.butfirstOp(p1);
+		case "butlast":
+			p1 = nextParameter(scan, map);
+			return Utility.butlastOp(p1);
 		// 数值计算
 		case "random":
 			p1 = nextParameter(scan, map);

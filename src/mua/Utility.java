@@ -112,6 +112,54 @@ public class Utility {
 		return new Variable(result.toString(), Type.BOOLEAN);
 	}
 	
+	// 字表处理
+	public static Variable wordOp(Variable a, Variable b) {
+		return new Variable(a.content + b.content, Type.WORD);
+	}
+	public static Variable sentenceOp(Variable a, Variable b) {
+		return new Variable(a.content + " " + b.content, Type.LIST);
+	}
+	public static Variable listOp(Variable a, Variable b) {
+		return new Variable(a.content + " " + b.content, Type.LIST);
+	}
+	public static Variable joinOp(Variable a, Variable b) {
+		return new Variable(a.content + " " + b.content, Type.LIST);
+	}
+	public static Variable firstOp(Variable a) {
+		if (a.type == Type.WORD)
+			return new Variable(String.valueOf(a.content.charAt(0)), Type.WORD);
+		else {
+			int firstBlank = a.content.indexOf(' ');
+			return new Variable(a.content.substring(0, firstBlank), Type.WORD);
+		}
+	}
+	public static Variable lastOp(Variable a) {
+		if (a.type == Type.WORD) {
+			int length = a.content.length();
+			return new Variable(String.valueOf(a.content.charAt(length - 1)), Type.WORD);
+		} else {
+			int lastBlank = a.content.lastIndexOf(' ');
+			return new Variable(a.content.substring(lastBlank + 1), Type.WORD);
+		}
+	}
+	public static Variable butfirstOp(Variable a) {
+		if (a.type == Type.WORD)
+			return new Variable(a.content.substring(1), Type.WORD);
+		else {
+			int firstBlank = a.content.indexOf(' ');
+			return new Variable(a.content.substring(firstBlank + 1), Type.LIST);
+		}
+	}
+	public static Variable butlastOp(Variable a) {
+		if (a.type == Type.WORD) {
+			int length = a.content.length();
+			return new Variable(a.content.substring(0, length - 1), Type.WORD);
+		} else {
+			int lastBlank = a.content.lastIndexOf(' ');
+			return new Variable(a.content.substring(0, lastBlank), Type.LIST);
+		}
+	}
+	
 	// 数值计算
 	// 返回值: Number 类型的 Variable
 	public static Variable random(Variable a) {
