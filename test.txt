@@ -1,3 +1,4 @@
+// Part 1
 make "a 6
 print :a
 make "b "a
@@ -13,10 +14,11 @@ print :x
 erase "d
 print not isname "d
 
+// Part 2
 make "a 1
-repeat 4 [make "a add :a 1 print :a]
+repeat 5 [make "a add :a 1 print :a]
 print :a
-make "n 5
+make "n 6
 make "f [
 	[n]
 	[
@@ -30,24 +32,161 @@ print :n
 make "f [
 	[n]
 	[
-		if eq :n 5
+		if eq :n 4
 			[stop]
 			[print :n f add :n 1]
 	]
 ]
 f 1
-//  not required
-make "a 6
-make "b if eq :a 6 [2] [3]
-print :b
-make "n 5
+make "let [
+	[a123128736128asd b71823681263ahsgdajd]
+	[
+		make :a123128736128asd :b71823681263ahsgdajd
+		make "qisi 74
+		export :a123128736128asd
+	]
+]
+let "a 8
+print :a
+print isname "qisi
+make "gcd [
+    [a b]
+    [
+        if eq :b 0
+            [output :a]
+            [output gcd :b mod :a :b]
+    ]
+]
+print gcd 36 21
+
+// Part 3
+run [print :pi]
+make "a 2
+make "a (:a+3)
+print :a
 make "f [
+	[a]
+	[output (:a*:a)]
+]
+print f 2
+print (f 2 * 4)
+print (2*(2+3)/4)
+print sentence [a] "b
+print sentence [a [a b]] [c]
+print sentence "a "b
+print list "a [b]
+print list [a] [b]
+print list [a] "b
+print join [a] "b
+print join [a] [b]
+print join [a [b]] [c]
+print first [a b c]
+print first [[a] b c]
+print first [[a b] b c]
+print first [[a [b]] c]
+print first "abc
+print first 123
+print first true
+print butfirst [a [a b]]
+print butfirst [a [a b] c]
+print butfirst [a b c]
+print butfirst [a [ a b] [c]]
+print butfirst "abcd
+print butlast [a [b c]]
+print butlast [a b c]
+print butlast [a b [c d] e]
+make "length
+[
+	[x]
+	[
+		if isempty :x
+			[output 0]
+			[output add length butfirst :x 1]
+	]
+]
+print length [1 [2 3] 4]
+print join [] [2 3]
+make "reverse [
+    [x]
+    [
+        if isempty :x
+            [output :x]
+            [
+                if islist :x
+                    [output join reverse butfirst :x first :x]
+                    [output word reverse butfirst :x first :x]
+            ]
+    ]
+]
+print reverse [1 2 3]
+print reverse [1 [2 3] 4]
+make "find [
+    [lst x]
+    [
+        if isempty :lst
+            [output false]
+            [
+                if eq first :lst :x
+                    [output true]
+                    [output find butfirst :lst :x]
+            ]
+    ]
+]
+print find [1 2 3] 2
+print find [1 2 3] 4
+print find [1 [2 3] 4] 2
+make "index [
+    [lst x]
+    [
+        if isempty :lst
+            [output -1]
+            [
+                if eq first :lst :x
+                    [output 0]
+                    [
+                        make "i index butfirst :lst :x
+                        if eq :i -1
+                            [output -1]
+                            [output add :i 1]
+                    ]
+            ]
+    ]
+]
+print index [1 2 3] 2
+print index [1 [2 3] 4] 2
+make "f
+[
+	[]
+	[print "a]
+]
+f
+make "f [[][]]
+f
+save "a.mua
+erall
+print isname "f
+load "a.mua
+print isname "f
+make "a 1
+repeat 4 [make "a (:a+1)]
+print :a
+make "n 5
+make "factorial [
 	[n]
 	[
 		if lt :n 2
-			[1]
-			[mul :n f sub :n 1]
+			[output 1]
+			[output (:n * factorial (:n-1))]
 	]
 ]
-print f :n
+print factorial :n
 print :n
+make "gcd [
+    [a b]
+    [
+        if eq :b 0
+            [output :a]
+            [output gcd :b (:a % :b)]
+    ]
+]
+print gcd 18 12
