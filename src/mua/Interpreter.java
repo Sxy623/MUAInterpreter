@@ -1,8 +1,11 @@
 package src.mua;
 
 import java.util.Scanner;
+import java.io.File;
+import java.io.FileWriter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 public class Interpreter {
 	
@@ -341,6 +344,65 @@ public class Interpreter {
 						interpret(tempScanner, map);
 					}
 				}
+				break;
+			case "wait":
+				p1 = nextParameter(scan, map);
+				try {
+					Thread.sleep(Double.valueOf(p1.content).longValue());
+				}
+				catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				break;
+			case "save":
+				p1 = nextParameter(scan, map);
+				try {
+					FileWriter writer = new FileWriter(p1.content, false);
+					for (Entry<String, Variable> entry : map.entrySet()) {
+						writer.write("make ");
+						writer.write("\"" + entry.getKey() + " ");
+						Variable x = entry.getValue();
+						if (x.type == Type.BOOLEAN || x.type == Type.NUMBER) {
+							writer.write(x.content);
+						}
+						else if (x.type == Type.WORD) {
+							writer.write("\"" + x.content);
+						}
+						else {
+							writer.write("[" + x.content + "]");
+						}
+						writer.write("\n");
+					}
+					writer.close();
+				}
+				catch (Exception e) {
+					e.printStackTrace();
+				}
+				break;
+			case "load":
+				p1 = nextParameter(scan, map);
+				try {
+					File file = new File(p1.content);
+					Scanner fileScanner = new Scanner(file);
+					interpret(fileScanner, map);
+				}
+				catch (Exception e) {
+					e.printStackTrace();
+				}
+				break;
+			case "erall":
+				map.clear();
+				break;
+			case "poall":
+				boolean first = true;
+				for (Entry<String, Variable> entry : map.entrySet()) {
+					if (first) {
+						System.out.print(entry.getKey());
+						first = false;
+					}
+					else System.out.print(" " + entry.getKey());
+				}
+				System.out.println();
 				break;
 			default: // 调用函数
 				Variable f = map.get(instruction);
