@@ -93,12 +93,12 @@ public class Interpreter {
 		String p = scan.next();
 		depth += Utility.count(p, '(') - Utility.count(p, ')');
 		while (depth != 0) {
-			tempStr += p;
+			tempStr += " " + p;
 			p = scan.next();
 			depth += Utility.count(p, '(') - Utility.count(p, ')');
 		}
 		int index = p.lastIndexOf(")");
-		tempStr += p.substring(0, index);
+		tempStr += " " + p.substring(0, index);
 		return tempStr;
 	}
 	
@@ -127,7 +127,7 @@ public class Interpreter {
 		}
 		// 解析表达式
 		else if (isExpression(p)) {
-			return new Variable(String.valueOf(Calculator.calcExpression(getExpression(p, scan))), Type.NUMBER);
+			return new Variable(String.valueOf(Calculator.calcExpression(getExpression(p, scan), map)), Type.NUMBER);
 		}
 		
 		Variable p1, p2;
@@ -257,13 +257,8 @@ public class Interpreter {
 		default:
 			Variable f = map.get(p);
 			String str;
-			try {
-				if (f != null) str = f.content;
-				else str = Main.map.get(p).content;
-			}
-			catch (Exception e) {
-				throw new RuntimeException(p);
-			}
+			if (f != null) str = f.content;
+			else str = Main.map.get(p).content;
 			tempScanner = new Scanner(str);
 			// 局部变量空间
 			Map<String, Variable> localMap = new HashMap<String, Variable>();
@@ -272,7 +267,7 @@ public class Interpreter {
 			String noLeadingBlank = p1.content.replaceAll("^ +", "");
 			int paraNum;
 			if (noLeadingBlank.isEmpty())
-				paraNum = 1;
+				paraNum = 0;
 			else {
 				String[] parameters = noLeadingBlank.split(" ");
 				paraNum = parameters.length;
@@ -363,7 +358,7 @@ public class Interpreter {
 				String noLeadingBlank = p1.content.replaceAll("^ +", "");
 				int paraNum;
 				if (noLeadingBlank.isEmpty())
-					paraNum = 1;
+					paraNum = 0;
 				else {
 					String[] parameters = noLeadingBlank.split(" ");
 					paraNum = parameters.length;

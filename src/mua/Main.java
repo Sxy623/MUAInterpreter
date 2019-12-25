@@ -24,6 +24,7 @@ public class Main {
 	public static Map<String, Variable> map = new HashMap<String, Variable>();
 	
 	public static void main(String[] args) {
+		map.put("pi", new Variable("3.14159", Type.NUMBER));
 		while (scan.hasNext()) {
 			try {
 				Interpreter.interpret(scan, map);
