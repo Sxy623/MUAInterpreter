@@ -41,6 +41,12 @@ public class Utility {
 	// 返回值: Boolean 类型的 Variable
 	public static Variable eqOp(Variable a, Variable b) {
 		if (a.type == Type.NUMBER || b.type == Type.NUMBER) {
+			if (a.type == Type.LIST || a.type == Type.BOOLEAN) {
+				return new Variable("false", Type.BOOLEAN);
+			}
+			if (b.type == Type.LIST || b.type == Type.BOOLEAN) {
+				return new Variable("false", Type.BOOLEAN);
+			}
 			if (Math.abs(Double.valueOf(a.content) - Double.valueOf(b.content)) < eps) {
 				return new Variable("true", Type.BOOLEAN);
 			}
@@ -120,43 +126,110 @@ public class Utility {
 		return new Variable(a.content + " " + b.content, Type.LIST);
 	}
 	public static Variable listOp(Variable a, Variable b) {
-		return new Variable(a.content + " " + b.content, Type.LIST);
+		String s1, s2;
+		s1 = a.content;
+		s2 = b.content;
+		if (a.type == Type.LIST) {
+			s1 = "[" + s1 + "]";
+		}
+		if (b.type == Type.LIST) {
+			s2 = "[" + s2 + "]";
+		}
+		return new Variable(s1 + " " + s2, Type.LIST);
 	}
 	public static Variable joinOp(Variable a, Variable b) {
-		return new Variable(a.content + " " + b.content, Type.LIST);
+		String s1, s2;
+		s1 = a.content;
+		s2 = b.content;
+		if (b.type == Type.LIST) {
+			s2 = "[" + s2 + "]";
+		}
+		return new Variable(s1 + " " + s2, Type.LIST);
 	}
 	public static Variable firstOp(Variable a) {
-		if (a.type == Type.WORD)
+		if (a.type == Type.WORD || a.type == Type.BOOLEAN || a.type == Type.NUMBER)
 			return new Variable(String.valueOf(a.content.charAt(0)), Type.WORD);
+		else if (a.content.charAt(0) != '[') {
+			if (a.content.contains(" ")) {
+				int firstBlank = a.content.indexOf(' ');
+				return new Variable(a.content.substring(0, firstBlank), Type.WORD);
+			}
+			else return new Variable(a.content, Type.WORD);
+		}
 		else {
-			int firstBlank = a.content.indexOf(' ');
-			return new Variable(a.content.substring(0, firstBlank), Type.WORD);
+			int p = 1;
+			int depth = 1;
+			while (depth != 0) {
+				if (a.content.charAt(p) == '[') depth++;
+				if (a.content.charAt(p) == ']') depth--;
+				p++;
+			}
+			return new Variable(a.content.substring(1, p-1), Type.LIST);
 		}
 	}
 	public static Variable lastOp(Variable a) {
-		if (a.type == Type.WORD) {
-			int length = a.content.length();
+		int length = a.content.length();
+		if (a.type == Type.WORD || a.type == Type.BOOLEAN || a.type == Type.NUMBER)
 			return new Variable(String.valueOf(a.content.charAt(length - 1)), Type.WORD);
-		} else {
-			int lastBlank = a.content.lastIndexOf(' ');
-			return new Variable(a.content.substring(lastBlank + 1), Type.WORD);
+		else if (a.content.charAt(length - 1) != ']') {
+			if (a.content.contains(" ")) {
+				int lastBlank = a.content.lastIndexOf(' ');
+				return new Variable(a.content.substring(lastBlank + 1), Type.WORD);
+			}
+			else return new Variable(a.content, Type.WORD);
+		}
+		else {
+			int p = length - 2;
+			int depth = 1;
+			while (depth != 0) {
+				if (a.content.charAt(p) == ']') depth++;
+				if (a.content.charAt(p) == '[') depth--;
+				p--;
+			}
+			return new Variable(a.content.substring(p + 2, length - 1), Type.LIST);
 		}
 	}
 	public static Variable butfirstOp(Variable a) {
-		if (a.type == Type.WORD)
+		if (a.type == Type.WORD || a.type == Type.BOOLEAN || a.type == Type.NUMBER)
 			return new Variable(a.content.substring(1), Type.WORD);
+		else if (a.content.charAt(0) != '[') {
+			if (a.content.contains(" ")) {
+				int firstBlank = a.content.indexOf(' ');
+				return new Variable(a.content.substring(firstBlank + 1), Type.LIST);
+			}
+			else return new Variable("", Type.LIST);
+		}
 		else {
-			int firstBlank = a.content.indexOf(' ');
-			return new Variable(a.content.substring(firstBlank + 1), Type.LIST);
+			int p = 0;
+			int depth = 0;
+			while (a.content.charAt(p) != ' ' || depth != 0) {
+				if (a.content.charAt(p) == '[') depth++;
+				if (a.content.charAt(p) == ']') depth--;
+				p++;
+			}
+			return new Variable(a.content.substring(p + 1), Type.LIST);
 		}
 	}
-	public static Variable butlastOp(Variable a) {
-		if (a.type == Type.WORD) {
-			int length = a.content.length();
+	public static Variable butlastOp(Variable a) {		
+		int length = a.content.length();
+		if (a.type == Type.WORD || a.type == Type.BOOLEAN || a.type == Type.NUMBER)
 			return new Variable(a.content.substring(0, length - 1), Type.WORD);
-		} else {
-			int lastBlank = a.content.lastIndexOf(' ');
-			return new Variable(a.content.substring(0, lastBlank), Type.LIST);
+		else if (a.content.charAt(length - 1) != ']') {
+			if (a.content.contains(" ")) {
+				int lastBlank = a.content.lastIndexOf(' ');
+				return new Variable(a.content.substring(0, lastBlank), Type.LIST);
+			}
+			else return new Variable("", Type.LIST);
+		}
+		else {
+			int p = length - 1;
+			int depth = 0;
+			while (a.content.charAt(p) != ' ' || depth != 0) {
+				if (a.content.charAt(p) == ']') depth++;
+				if (a.content.charAt(p) == '[') depth--;
+				p--;
+			}
+			return new Variable(a.content.substring(0, p), Type.LIST);
 		}
 	}
 	

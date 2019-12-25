@@ -138,14 +138,12 @@ public class Calculator {
 				// 函数
 				else {
 					Variable f = map.get(functionName);
-					String str;
-					if (f != null) str = f.content;
-					else str = Main.map.get(functionName).content;
-					Scanner tempScanner = new Scanner(str);
+					if (f == null) f = Main.map.get(functionName);
+					Scanner tempScanner;
 					// 局部变量空间
 					Map<String, Variable> localMap = new HashMap<String, Variable>();
-					Variable p1 = Interpreter.nextParameter(tempScanner, map);
-					Variable p2 = Interpreter.nextParameter(tempScanner, map);
+					Variable p1 = Utility.firstOp(f);
+					Variable p2 = Utility.lastOp(f);
 					String noLeadingBlank = p1.content.replaceAll("^ +", "");
 					int paraNum;
 					if (noLeadingBlank.isEmpty())
@@ -188,14 +186,12 @@ public class Calculator {
 			// 函数
 			else {
 				Variable f = map.get(functionName);
-				String str;
-				if (f != null) str = f.content;
-				else str = Main.map.get(functionName).content;
-				Scanner tempScanner = new Scanner(str);
+				if (f == null) f = Main.map.get(functionName);
+				Scanner tempScanner;
 				// 局部变量空间
 				Map<String, Variable> localMap = new HashMap<String, Variable>();
-				Variable p1 = Interpreter.nextParameter(tempScanner, map);
-				Variable p2 = Interpreter.nextParameter(tempScanner, map);
+				Variable p1 = Utility.firstOp(f);
+				Variable p2 = Utility.lastOp(f);
 				String noLeadingBlank = p1.content.replaceAll("^ +", "");
 				int paraNum;
 				if (noLeadingBlank.isEmpty())

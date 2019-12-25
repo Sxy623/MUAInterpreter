@@ -256,14 +256,11 @@ public class Interpreter {
 		// 函数调用
 		default:
 			Variable f = map.get(p);
-			String str;
-			if (f != null) str = f.content;
-			else str = Main.map.get(p).content;
-			tempScanner = new Scanner(str);
+			if (f == null) f = Main.map.get(p);
 			// 局部变量空间
 			Map<String, Variable> localMap = new HashMap<String, Variable>();
-			p1 = nextParameter(tempScanner, map);
-			p2 = nextParameter(tempScanner, map);
+			p1 = Utility.firstOp(f);
+			p2 = Utility.lastOp(f);
 			String noLeadingBlank = p1.content.replaceAll("^ +", "");
 			int paraNum;
 			if (noLeadingBlank.isEmpty())
@@ -347,14 +344,11 @@ public class Interpreter {
 				break;
 			default: // 调用函数
 				Variable f = map.get(instruction);
-				String str;
-				if (f != null) str = f.content;
-				else str = Main.map.get(instruction).content;
-				tempScanner = new Scanner(str);
+				if (f == null) f = Main.map.get(instruction);
 				// 局部变量空间
 				Map<String, Variable> localMap = new HashMap<String, Variable>();
-				p1 = nextParameter(tempScanner, map);
-				p2 = nextParameter(tempScanner, map);
+				p1 = Utility.firstOp(f);
+				p2 = Utility.lastOp(f);
 				String noLeadingBlank = p1.content.replaceAll("^ +", "");
 				int paraNum;
 				if (noLeadingBlank.isEmpty())

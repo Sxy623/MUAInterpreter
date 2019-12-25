@@ -11,7 +11,7 @@ class Variable {
 	Type type;
 	
 	public Variable(String content, Type type) {
-		this.content = content;
+		this.content = content.trim();
 		this.type = type;
 	}
 }
