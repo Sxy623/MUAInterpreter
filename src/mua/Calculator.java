@@ -58,6 +58,8 @@ public class Calculator {
 		boolean numberFlag = false;
 		boolean variableFlag = false;
 		boolean functionFlag = false;
+		boolean previousOp = true;
+		boolean unaryMinus = false;
 		
 		for (int i = 0; i < s.length(); i++) {
 			char ch = s.charAt(i);
@@ -95,28 +97,38 @@ public class Calculator {
 			}
 			// 字面量、变量、函数结束
 			if (numberFlag) {
+				if (unaryMinus) {
+					numberLiteral *= -1;
+					unaryMinus = false;
+				}
 				nums[numsTop++] = numberLiteral;
 				numberLiteral = 0;
 				numberFlag = false;
+				previousOp = false;
 			}
 			if (variableFlag) {
 				nums[numsTop++] = Double.parseDouble(map.get(variableName).content);
 				variableFlag = false;
+				previousOp = false;
 			}
 			if (functionFlag) {
 				ops[opsTop++] = functionName;
 				functionFlag = false;
+				previousOp = false;
 			}
 			// 空白位
 			if (Character.isWhitespace(ch)) {
+				previousOp = false;
 				continue;
 			}
 			// 括号
 			if (ch == '(') {
+				previousOp = true;
 				ops[opsTop++] = String.valueOf(ch);
 				continue;
 			}
 			if (ch == ')') {
+				previousOp = false;
 				String op = ops[--opsTop];
 				while (!op.equals("(")) {
 					double num2 = nums[--numsTop];
@@ -127,6 +139,11 @@ public class Calculator {
 				continue;
 			}
 			// 运算符
+			if (previousOp && ch == '-') {
+				unaryMinus = true;
+				continue;
+			}
+			previousOp = true;
 			while (opsTop != 0 && priority(String.valueOf(ch)) <= priority(ops[opsTop - 1])) {
 				String op = ops[--opsTop];
 				// 四则运算
